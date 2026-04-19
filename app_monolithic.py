@@ -4,19 +4,57 @@ Run: streamlit run app_monolithic.py
 """
 
 import pickle
+import os
 import pandas as pd
 import streamlit as st
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
+from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.model_selection import train_test_split
 
-# -- Page config (MUST be first Streamlit call) --------------------------------
-st.set_page_config(page_title="Student Placement Predictor", layout="wide")
+CAT_COLS = ['gender','branch','part_time_job','family_income_level',
+            'city_tier','internet_access','extracurricular_involvement']
+NUM_COLS = ['cgpa','tenth_percentage','twelfth_percentage','backlogs',
+            'study_hours_per_day','attendance_percentage','projects_completed',
+            'internships_completed','coding_skill_rating','communication_skill_rating',
+            'aptitude_skill_rating','hackathons_participated','certifications_count',
+            'sleep_hours','stress_level']
 
-# -- Load models ---------------------------------------------------------------
 @st.cache_resource
 def load_models():
-    with open('models/clf_model.pkl', 'rb') as f:
-        clf = pickle.load(f)
-    with open('models/reg_model.pkl', 'rb') as f:
-        reg = pickle.load(f)
+    features = pd.read_csv('A.csv')
+    targets  = pd.read_csv('A_targets.csv')
+    df = features.merge(targets, on='Student_ID').drop(columns=['Student_ID'])
+    df['extracurricular_involvement'] = df['extracurricular_involvement'].fillna('Medium')
+
+    le = LabelEncoder()
+    df['placement_status'] = le.fit_transform(df['placement_status'])
+
+    X     = df.drop(columns=['placement_status','salary_lpa'])
+    y_clf = df['placement_status']
+    y_reg = df['salary_lpa']
+
+    X_train, _, yc_train, _, yr_train, _ = train_test_split(
+        X, y_clf, y_reg, test_size=0.2, random_state=42, stratify=y_clf
+    )
+
+    preprocessor = ColumnTransformer(transformers=[
+        ('num', StandardScaler(), NUM_COLS),
+        ('cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False), CAT_COLS)
+    ])
+
+    clf = Pipeline([('preprocessor', preprocessor),
+                    ('classifier', LogisticRegression(max_iter=500, random_state=42))])
+    clf.fit(X_train, yc_train)
+
+    reg = Pipeline([('preprocessor', ColumnTransformer(transformers=[
+                        ('num', StandardScaler(), NUM_COLS),
+                        ('cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False), CAT_COLS)
+                    ])),
+                    ('regressor', LinearRegression())])
+    reg.fit(X_train, yr_train)
+
     return clf, reg
 
 clf_model, reg_model = load_models()
