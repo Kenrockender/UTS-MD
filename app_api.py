@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 app = FastAPI(
     title="Placement Prediction API",
-    description="Predicts student placement status and salary. DTSC6012001 — Dataset A",
+    description="Predicts student placement status and salary",
     version="1.0.0"
 )
 
