@@ -1,8 +1,3 @@
-"""
-Evaluation Module
-Loads trained models from MLflow, evaluates on test data, and logs metrics.
-"""
-
 import numpy as np
 import mlflow
 import mlflow.sklearn

@@ -1,9 +1,3 @@
-"""
-Task 4 -- Streamlit Frontend (API Client)
-Run: streamlit run app_frontend.py --server.port 8502
-Requires: uvicorn app_api:app --reload (running on port 8000)
-"""
-
 import requests
 import pandas as pd
 import streamlit as st
@@ -14,7 +8,7 @@ st.set_page_config(page_title="Placement API Client", layout="wide")
 st.title("Placement Prediction -- API Client")
 st.caption("Decoupled architecture: this Streamlit app sends requests to the FastAPI backend.")
 
-# -- Sidebar inputs ------------------------------------------------------------
+# Sidebar inputs
 with st.sidebar:
     st.header("Student Profile")
 
@@ -55,7 +49,7 @@ payload = {
     "internet_access": internet, "extracurricular_involvement": extra
 }
 
-# -- API calls -----------------------------------------------------------------
+# API calls
 col1, col2 = st.columns(2)
 
 with col1:

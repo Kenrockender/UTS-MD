@@ -1,8 +1,3 @@
-"""
-Task 2 — Scikit-Learn Pipeline + MLflow
-Run: python pipeline.py
-"""
-
 import pickle
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
@@ -47,11 +42,11 @@ def run_pipeline():
     rmse, r2 = evaluate_reg(X_test, yr_test, reg_run_id)
 
     if f1 >= F1_THRESHOLD:
-        print("\n✅ Classification model approved for deployment")
+        print("\nClassification model approved for deployment")
     else:
-        print("\n❌ Classification model rejected")
+        print("\nClassification model rejected")
 
-    print("\n[OK] Models saved to models/clf_model.pkl and models/reg_model.pkl")
+    print("\nModels saved to models/clf_model.pkl and models/reg_model.pkl")
 
 
 if __name__ == '__main__':

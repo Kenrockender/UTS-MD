@@ -1,8 +1,3 @@
-"""
-Data Ingestion Module
-Reads raw CSV files, merges, validates, and saves to ingested/ folder.
-"""
-
 from pathlib import Path
 import pandas as pd
 
@@ -53,7 +48,7 @@ def ingest_data():
     # Save ingested data
     df.to_csv(OUTPUT_FILE, index=False)
 
-    print(f"✅ Data ingested from {FEATURES_FILE} & {TARGETS_FILE} → {OUTPUT_FILE} ({len(df)} rows)")
+    print(f"Data ingested from {FEATURES_FILE} & {TARGETS_FILE} → {OUTPUT_FILE} ({len(df)} rows)")
 
 
 if __name__ == "__main__":

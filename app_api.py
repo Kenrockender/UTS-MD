@@ -1,9 +1,3 @@
-"""
-Task 4 — FastAPI Backend
-Run: uvicorn app_api:app --reload
-Test: http://localhost:8000/docs
-"""
-
 import pickle
 import pandas as pd
 from fastapi import FastAPI
@@ -15,14 +9,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# ── Load models ──────────────────────────────────────────────────────────────
+# Load models
 with open('models/clf_model.pkl', 'rb') as f:
     clf_model = pickle.load(f)
 with open('models/reg_model.pkl', 'rb') as f:
     reg_model = pickle.load(f)
 
 
-# ── Input schema ─────────────────────────────────────────────────────────────
+# Input schema
 class StudentInput(BaseModel):
     gender: str
     branch: str
@@ -91,7 +85,7 @@ class StudentInput(BaseModel):
     }
 
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
+# Endpoints
 @app.get("/")
 def root():
     return {"message": "Placement Prediction API is running", "docs": "/docs"}

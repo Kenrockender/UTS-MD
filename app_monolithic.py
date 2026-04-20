@@ -1,8 +1,3 @@
-"""
-Task 3 -- Monolithic Streamlit App
-Run: streamlit run app_monolithic.py
-"""
-
 import pickle
 import pandas as pd
 import streamlit as st
@@ -22,8 +17,6 @@ NUM_COLS = ['cgpa','tenth_percentage','twelfth_percentage','backlogs',
 
 @st.cache_resource
 def load_models():
-    # Try loading pre-trained .pkl files first; fall back to training inline
-    # if the files are missing or were built with a different sklearn version.
     try:
         with open('models/clf_model.pkl', 'rb') as f:
             clf = pickle.load(f)
@@ -72,7 +65,7 @@ clf_model, reg_model = load_models()
 st.title("Student Placement & Salary Predictor")
 st.caption("Model Deployment Exam -- DTSC6012001 | Dataset A")
 
-# -- Sidebar inputs ------------------------------------------------------------
+# Sidebar inputs
 with st.sidebar:
     st.header("Student Profile")
 
@@ -106,7 +99,7 @@ with st.sidebar:
     sleep   = st.slider("Sleep Hours",       3.0, 10.0, 7.0, 0.5)
     stress  = st.slider("Stress Level (1-10)", 1, 10, 5)
 
-# -- Build input DataFrame -----------------------------------------------------
+# Build input DataFrame
 input_data = pd.DataFrame([{
     'gender': gender, 'branch': branch, 'cgpa': cgpa,
     'tenth_percentage': tenth, 'twelfth_percentage': twelfth,
@@ -120,7 +113,7 @@ input_data = pd.DataFrame([{
     'internet_access': internet, 'extracurricular_involvement': extra
 }])
 
-# -- Predictions ---------------------------------------------------------------
+# Predictions
 placement_raw = clf_model.predict(input_data)[0]
 placement_prob = clf_model.predict_proba(input_data)[0]
 placement_label = "Placed" if placement_raw == 1 else "Not Placed"
@@ -128,7 +121,7 @@ confidence = max(placement_prob) * 100
 
 salary = reg_model.predict(input_data)[0]
 
-# -- Display results -----------------------------------------------------------
+# Display results
 col1, col2, col3 = st.columns(3)
 col1.metric("Placement Prediction", placement_label)
 col2.metric("Confidence", f"{confidence:.1f}%")
@@ -136,7 +129,7 @@ col3.metric("Estimated Salary", f"Rs {salary:.2f} LPA")
 
 st.divider()
 
-# -- Data Visualizations -------------------------------------------------------
+# Data Visualizations
 viz1, viz2 = st.columns(2)
 
 with viz1:

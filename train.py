@@ -1,8 +1,3 @@
-"""
-Training Module
-Builds sklearn Pipelines, trains models, logs to MLflow, and saves .pkl files.
-"""
-
 import os
 import pickle
 import mlflow
