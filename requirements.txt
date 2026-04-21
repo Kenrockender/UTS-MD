@@ -1,6 +1,6 @@
 pandas
 scikit-learn
-streamlit
+streamlit == 1.2.2
 fastapi
 uvicorn
 pydantic
