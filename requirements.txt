@@ -1,6 +1,6 @@
 pandas
-scikit-learn == 1.6.1
-streamlit
+scikit-learn==1.6.1
+streamlit>=1.56.0
 fastapi
 uvicorn
 pydantic
