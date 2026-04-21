@@ -1,3 +1,4 @@
+import os
 import pickle
 import pandas as pd
 from fastapi import FastAPI
@@ -12,9 +13,13 @@ app = FastAPI(
 
 # Load the models (pkl files from training)
 print("Loading models...")
-with open('models/clf_model.pkl', 'rb') as f:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+clf_path = os.path.join(BASE_DIR, 'models', 'clf_model.pkl')
+reg_path = os.path.join(BASE_DIR, 'models', 'reg_model.pkl')
+
+with open(clf_path, 'rb') as f:
     clf_model = pickle.load(f)
-with open('models/reg_model.pkl', 'rb') as f:
+with open(reg_path, 'rb') as f:
     reg_model = pickle.load(f)
 print("Models loaded successfully!")
 

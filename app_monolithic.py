@@ -1,3 +1,4 @@
+import os
 import pickle
 import pandas as pd
 import streamlit as st
@@ -16,18 +17,23 @@ NUM_COLS = ['cgpa','tenth_percentage','twelfth_percentage','backlogs',
             'aptitude_skill_rating','hackathons_participated','certifications_count',
             'sleep_hours','stress_level']
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 @st.cache_resource
 def load_models():
     """Load models from pkl files"""
     try:
         # Memuat model yang sudah ditraining
-        with open('models/clf_model.pkl', 'rb') as f:
+        clf_path = os.path.join(BASE_DIR, 'models', 'clf_model.pkl')
+        reg_path = os.path.join(BASE_DIR, 'models', 'reg_model.pkl')
+        
+        with open(clf_path, 'rb') as f:
             clf = pickle.load(f)
-        with open('models/reg_model.pkl', 'rb') as f:
+        with open(reg_path, 'rb') as f:
             reg = pickle.load(f)
         return clf, reg
     except Exception as e:
-        st.error(f"Model belum di-train atau file tidak ditemukan.")
+        st.error(f"Model error: {str(e)}")
         st.stop()
 
 # load models
