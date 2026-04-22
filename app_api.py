@@ -4,15 +4,8 @@ import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-# FastAPI app setup
-app = FastAPI(
-    title="Placement Prediction API",
-    description="Predicts student placement status and salary",
-    version="1.0.0"
-)
+app = FastAPI()
 
-# Load the models (pkl files from training)
-print("Loading models...")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 clf_path = os.path.join(BASE_DIR, 'models', 'clf_model.pkl')
 reg_path = os.path.join(BASE_DIR, 'models', 'reg_model.pkl')
@@ -21,10 +14,8 @@ with open(clf_path, 'rb') as f:
     clf_model = pickle.load(f)
 with open(reg_path, 'rb') as f:
     reg_model = pickle.load(f)
-print("Models loaded successfully!")
 
 
-# Input schema - all the student features
 class StudentInput(BaseModel):
     gender: str
     branch: str
@@ -49,10 +40,7 @@ class StudentInput(BaseModel):
     internet_access: str
     extracurricular_involvement: str
 
-    # (Tidak ada mock data spesifik)
 
-
-# API endpoints
 @app.get("/")
 def root():
     return {"message": "Placement Prediction API is running", "docs": "/docs"}
@@ -60,16 +48,10 @@ def root():
 
 @app.post("/predict/classification")
 def predict_classification(data: StudentInput):
-    # convert input to dataframe
-    df = pd.DataFrame([data.model_dump()])
-    
-    # get prediction
+    df = pd.DataFrame([data.dict()])
     prediction = clf_model.predict(df)[0]
     probability = clf_model.predict_proba(df)[0].tolist()
-    
-    # convert to label
     label = "Placed" if prediction == 1 else "Not Placed"
-    
     return {
         "placement_status": label,
         "placed_probability": round(probability[1], 4),
@@ -79,10 +61,6 @@ def predict_classification(data: StudentInput):
 
 @app.post("/predict/regression")
 def predict_regression(data: StudentInput):
-    # convert to df
-    df = pd.DataFrame([data.model_dump()])
-    
-    # predict salary
+    df = pd.DataFrame([data.dict()])
     salary = reg_model.predict(df)[0]
-    
     return {"salary_lpa": round(float(salary), 2)}
