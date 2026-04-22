@@ -27,7 +27,6 @@ NUM_COLS = [
 ]
 
 def load_dataset(features_path='A.csv', targets_path='A_targets.csv'):
-    """Memuat dan menggabungkan fitur dan target berdasarkan Student_ID."""
     features = pd.read_csv(features_path)
     targets = pd.read_csv(targets_path)
     df = features.merge(targets, on='Student_ID')
@@ -66,64 +65,68 @@ def main():
     os.makedirs('models', exist_ok=True)
 
     clf_candidates = {
-        'LogisticRegression': LogisticRegression(max_iter=500, random_state=42, class_weight='balanced'),
-        'RandomForest':       RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced'),
-        'DecisionTree':       DecisionTreeClassifier(random_state=42, class_weight='balanced', max_depth=10),
+        'LogisticRegression': LogisticRegression(max_iter=500, random_state=42),
+        'RandomForest': RandomForestClassifier(n_estimators=100, random_state=42),
+        'DecisionTree': DecisionTreeClassifier(random_state=42, max_depth=10),
     }
 
-    best_clf, best_f1 = None, -1
-    for name, clf in clf_candidates.items():
+    best_clf = None
+    best_f1 = -1
+    for name, model in clf_candidates.items():
         with mlflow.start_run(run_name=f"clf-{name}"):
-            pipeline = Pipeline([
+            pipe = Pipeline([
                 ('preprocessor', build_preprocessor()),
-                ('classifier', clf)
+                ('classifier', model)
             ])
-            pipeline.fit(X_train, yc_train)
-            f1 = f1_score(yc_test, pipeline.predict(X_test), average='weighted')
+            pipe.fit(X_train, yc_train)
+            preds = pipe.predict(X_test)
+            f1 = f1_score(yc_test, preds, average='weighted')
 
             mlflow.log_param("model", name)
-            mlflow.log_param("class_weight", "balanced")
             mlflow.log_metric("f1_weighted", f1)
-            mlflow.sklearn.log_model(pipeline, f"clf_{name}")
+            mlflow.sklearn.log_model(pipe, f"clf_{name}")
 
             print(f"[CLF] {name}: F1={f1:.4f}")
             if f1 > best_f1:
-                best_f1, best_clf = f1, pipeline
+                best_f1 = f1
+                best_clf = pipe
 
     with open('models/clf_model.pkl', 'wb') as f:
         pickle.dump(best_clf, f)
-    print(f"Best classifier saved (F1={best_f1:.4f})")
+    print(f"Classifier terbaik disimpan (F1={best_f1:.4f})")
 
     reg_candidates = {
         'LinearRegression': LinearRegression(),
-        'RandomForest':     RandomForestRegressor(n_estimators=100, random_state=42),
-        'DecisionTree':     DecisionTreeRegressor(random_state=42, max_depth=8),
+        'RandomForest': RandomForestRegressor(n_estimators=100, random_state=42),
+        'DecisionTree': DecisionTreeRegressor(random_state=42, max_depth=8),
     }
 
-    best_reg, best_rmse = None, float('inf')
-    for name, reg in reg_candidates.items():
+    best_reg = None
+    best_rmse = 999999
+    for name, model in reg_candidates.items():
         with mlflow.start_run(run_name=f"reg-{name}"):
-            pipeline = Pipeline([
+            pipe = Pipeline([
                 ('preprocessor', build_preprocessor()),
-                ('regressor', reg)
+                ('regressor', model)
             ])
-            pipeline.fit(X_train, yr_train)
-            preds = pipeline.predict(X_test)
+            pipe.fit(X_train, yr_train)
+            preds = pipe.predict(X_test)
             rmse = np.sqrt(mean_squared_error(yr_test, preds))
-            r2   = r2_score(yr_test, preds)
+            r2 = r2_score(yr_test, preds)
 
             mlflow.log_param("model", name)
             mlflow.log_metric("rmse", rmse)
             mlflow.log_metric("r2", r2)
-            mlflow.sklearn.log_model(pipeline, f"reg_{name}")
+            mlflow.sklearn.log_model(pipe, f"reg_{name}")
 
             print(f"[REG] {name}: RMSE={rmse:.4f} R2={r2:.4f}")
             if rmse < best_rmse:
-                best_rmse, best_reg = rmse, pipeline
+                best_rmse = rmse
+                best_reg = pipe
 
     with open('models/reg_model.pkl', 'wb') as f:
         pickle.dump(best_reg, f)
-    print(f"Best regressor saved (RMSE={best_rmse:.4f})")
+    print(f"Regressor terbaik disimpan (RMSE={best_rmse:.4f})")
 
 if __name__ == "__main__":
     main()

@@ -43,7 +43,7 @@ class StudentInput(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message": "Placement Prediction API is running", "docs": "/docs"}
+    return {"message": "Placement Prediction API is running"}
 
 
 @app.post("/predict/classification")
